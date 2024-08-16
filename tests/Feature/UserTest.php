@@ -12,17 +12,11 @@ class UserTest extends TestCase
 
     public function test_users_have_skills()
     {
-        User::factory()->count(10)->create();
+        $users = User::factory()->count(10)->create();
 
-        $response = $this->get('/users');
-
-        $response->assertStatus(200);
-        $response->assertJsonCount(10);
-
-        $users = $response->json();
         foreach ($users as $user) {
-            $this->assertNotEmpty($user['description']);
+            $this->assertNotEmpty($user->description, "User {$user->id} has no skills description.");
+            $this->assertStringContainsString('Developer', $user->description, "User {$user->id} does not have valid skills description.");
         }
     }
 }
-

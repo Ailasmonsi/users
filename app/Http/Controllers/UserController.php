@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Decorators\SkillDecorator;
+use App\Decorators\Skills\GolangDeveloperDecorator;
+use App\Decorators\Skills\JavaDeveloperDecorator;
+use App\Decorators\Skills\JavaScriptDeveloperDecorator;
+use App\Decorators\Skills\PHPDeveloperDecorator;
+use App\Decorators\UserSkills;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -23,9 +27,23 @@ class UserController extends Controller
             'password' => 'required|min:6',
         ]);
 
-        $skills = ['php', 'js', 'golang', 'java'];
-        $decoratedSkills = (new SkillDecorator($skills))->getDecoratedSkills();
-        $description = implode(', ', $decoratedSkills);
+        $skills = new UserSkills();
+
+        $availableDecorators = [
+            PHPDeveloperDecorator::class,
+            JavaScriptDeveloperDecorator::class,
+            GolangDeveloperDecorator::class,
+            JavaDeveloperDecorator::class,
+        ];
+
+        shuffle($availableDecorators);
+        $decoratorsToApply = array_slice($availableDecorators, 0, rand(1, count($availableDecorators)));
+
+        foreach ($decoratorsToApply as $decorator) {
+            $skills = new $decorator($skills);
+        }
+
+        $description = $skills->getSkills();
 
         $user = User::create([
             'name' => $request->name,
